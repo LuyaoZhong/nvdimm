@@ -1,0 +1,59 @@
+<domain type = 'kvm'>       
+    <name>ubuntu-cloud-server-1</name>        
+    <maxMemory  slots="16" unit='GiB'>8</maxMemory>
+    <vcpu>16</vcpu>           
+    <cpu>
+        <topology sockets='16' cores='1' threads='1'/>
+        <numa>
+            <cell id='0' cpus='0-15' memory='4' unit='GiB'/>
+        </numa>
+    </cpu>
+	<os>
+        <type arch = 'x86_64' machine = 'pc'>hvm</type>
+        <boot dev = 'hd'/>    
+    </os>
+    <features>
+        <acpi/>
+        <apic/>
+        <pae/>
+    </features>
+    <clock offset = 'localtime'/>
+    <on_poweroff>destroy</on_poweroff>
+    <on_reboot>restart</on_reboot>
+    <on_crash>destroy</on_crash>
+    <devices>
+        <emulator>/usr/bin/qemu-system-x86_64</emulator>
+        <disk type = 'file' device = 'disk'> 
+            <driver name = 'qemu' type = 'qcow2'/>
+            <source file = '/home/luyaozho/nvdimm/ubuntu-cloud-server.qcow2'/>
+            <target dev = 'hda' bus = 'ide'/>
+        </disk>
+		<memory model='nvdimm'>
+	    	<source>
+                <path>/dev/dax0.0</path>
+                <alignsize unit='MiB'>2</alignsize>
+                <pmem>on</pmem>
+	    	</source>
+            <target>
+	      		<size unit='MiB'>4094</size>
+                <node>0</node>
+		     	<label>
+	        		<size unit='MiB'>2</size>
+	      		</label>
+                <persistence>cpu</persistence>
+                <unarmed>off</unarmed>
+	        </target>
+	    </memory>
+        <interface type = 'bridge'>         
+            <source bridge = 'virbr0'/>
+			<target dev='tap1'/>
+        </interface>
+		<serial type='pty'>
+		  <target port='0'/>
+		</serial>
+		<console type='pty'>
+		  <target type='serial' port='0'/>
+		</console>
+        <input type ='tablet' bus='usb'/>
+    </devices>
+</domain>
